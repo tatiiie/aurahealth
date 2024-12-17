@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura - Персонализированное меню</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #6a8d73;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            letter-spacing: 1px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 10px;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .form-container input, .form-container select, .form-container button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 1em;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .form-container button {
+            background: #6a8d73;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background: #357ab7;
+        }
+
+        .menu {
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .day {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .day h3 {
+            margin: 0;
+            font-size: 1.8em;
+            color: #6a8d73;
+        }
+
+        .meal {
+            font-size: 1.1em;
+            margin: 5px 0 10px 20px;
+        }
+
+        .day div {
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        footer a {
+            color: #8dbf8f;
+            text-decoration: none;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Aura</h1>
+        <p>Создайте персонализированное меню для здоровья и энергии</p>
+    </header>
+
+    <div class="form-container">
+        <label>
+            Пол:
+            <select id="gender">
+                <option value="male">Мужской</option>
+                <option value="female">Женский</option>
+            </select>
+        </label>
+        <label>
+            Возраст:
+            <input type="number" id="age" min="1" max="120" value="25">
+        </label>
+        <label>
+            Образ жизни:
+            <select id="lifestyle">
+                <option value="sedentary">Сидячий</option>
+                <option value="moderate">Умеренная активность</option>
+                <option value="active">Активный</option>
+            </select>
+        </label>
+        <label>
+            Особенности организма:
+            <select id="preferences">
+                <option value="none">Без ограничений</option>
+                <option value="vegetarian">Вегетарианец</option>
+                <option value="low_carb">Лишний вес</option>
+            </select>
+        </label>
+        <button onclick="generateMenu()">Сгенерировать меню</button>
+    </div>
+
+    <div class="menu" id="menu"></div>
+
+    <script>
+        const meals = {
+            Завтрак: [
+                { name: "Овсянка с фруктами", calories: 250, vegetarian: true, low_carb: false },
+                { name: "Яичница с овощами", calories: 250, vegetarian: true, low_carb: true },
+                { name: "Тост с авокадо", calories: 350, vegetarian: true, low_carb: false }
+            ],
+            Обед: [
+                { name: "Куриный суп", calories: 400, vegetarian: false, low_carb: true },
+                { name: "Рыба с рисом", calories: 450, vegetarian: false, low_carb: false },
+                { name: "Салат Цезарь", calories: 350, vegetarian: false, low_carb: true }
+            ],
+            Перекус: [
+                { name: "Йогурт с орехами", calories: 250, vegetarian: true, low_carb: true },
+                { name: "Фрукты", calories: 150, vegetarian: true, low_carb: false },
+                { name: "Протеиновый батончик", calories: 350, vegetarian: true, low_carb: true }
+            ],
+            Ужин: [
+                { name: "Гречка с грибами", calories: 350, vegetarian: true, low_carb: true },
+                { name: "Овощное рагу", calories: 300, vegetarian: true, low_carb: false },
+                { name: "Паста с сыром", calories: 400, vegetarian: true, low_carb: false }
+            ]
+        };
+
+        const daysOfWeek = [
+            "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"
+        ];
+
+        function calculateCalories(gender, age, lifestyle) {
+            let baseCalories = gender === "male" ? 2000 : 1800;
+            if (age < 30) baseCalories += 200;
+            else if (age >= 50) baseCalories -= 200;
+
+            switch (lifestyle) {
+                case "moderate":
+                    baseCalories += 200;
+                    break;
+                case "active":
+                    baseCalories += 400;
+                    break;
+            }
+
+            return baseCalories;
+        }
+
+        function filterMeals(preferences, mealType) {
+            return meals[mealType].filter(meal => {
+                if (preferences === "vegetarian" && !meal.vegetarian) return false;
+                if (preferences === "low_carb" && !meal.low_carb) return false;
+                return true;
+            });
+        }
+
+        function getRandomMeal(filteredMeals) {
+            return filteredMeals[Math.floor(Math.random() * filteredMeals.length)];
+        }
+
+        function generateMenu() {
+            const gender = document.getElementById("gender").value;
+            const age = parseInt(document.getElementById("age").value);
+            const lifestyle = document.getElementById("lifestyle").value;
+            const preferences = document.getElementById("preferences").value;
+
+            const dailyCalories = calculateCalories(gender, age, lifestyle);
+            const menuDiv = document.getElementById("menu");
+            menuDiv.innerHTML = "";
+
+            daysOfWeek.forEach(day => {
+                let totalCalories = 0;
+
+                const dayDiv = document.createElement("div");
+                dayDiv.classList.add("day");
+
+                const dayHeader = document.createElement("h3");
+                dayHeader.textContent = day;
+                dayDiv.appendChild(dayHeader);
+
+                ["Завтрак", "Обед", "Перекус", "Ужин"].forEach(mealType => {
+                    const filteredMeals = filterMeals(preferences, mealType);
+                    const meal = getRandomMeal(filteredMeals);
+                    totalCalories += meal.calories;
+
+                    const mealDiv = document.createElement("div");
+                    mealDiv.classList.add("meal");
+                    mealDiv.textContent = `${mealType[0].toUpperCase() + mealType.slice(1)}: ${meal.name} (${meal.calories} ккал)`;
+                    dayDiv.appendChild(mealDiv);
+                });
+
+                const caloriesDiv = document.createElement("div");
+                caloriesDiv.textContent = `Итого калорий за день: ${totalCalories} ккал (Рекомендуется: ${dailyCalories} ккал)`;
+                caloriesDiv.style.fontWeight = "bold";
+                dayDiv.appendChild(caloriesDiv);
+
+                menuDiv.appendChild(dayDiv);
+            });
+        }
+    </script>
+<footer>
+    <p>&copy; 2024 Aura.</p>
+    <p><a href="forma.htm">Обратная связь</a></p>
+</footer>
+
+</body>
+</html>
+
